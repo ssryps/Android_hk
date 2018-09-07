@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
+              android:clickable="true"
+              android:id="@+id/news_layout"
+              android:layout_height="match_parent" android:orientation="vertical">
+
+    <TextView
+            android:text="TextView"
+            android:id="@+id/news_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textSize="18sp" android:textStyle="bold" android:paddingLeft="15dp" android:paddingRight="15dp"
+            android:paddingTop="5dp" android:paddingBottom="2dp"/>
+    <TextView
+            android:text="TextView"
+            android:id="@+id/news_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="6" android:paddingTop="2dp" android:paddingLeft="15dp"
+            android:paddingBottom="2dp" android:paddingRight="15dp"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_weight="2" android:paddingTop="2dp"
+            android:paddingBottom="5dp">
+        <TextView
+                android:text="TextView"
+                android:id="@+id/news_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp" android:paddingLeft="20dp" android:paddingRight="10dp"/>
+        <TextView
+                android:text="TextView"
+                android:id="@+id/news_pub_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp" android:paddingRight="30dp" android:paddingLeft="10dp"/>
+    </LinearLayout>
+</LinearLayout>

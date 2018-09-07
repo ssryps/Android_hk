@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">shiyusong_News</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- my own data section -->
+
+    <!-- strings about the rss site-->
+    <string name="rss_site">http://rss.qq.com/index.shtml</string>
+    <string name="title_activity_search_list">SearchList</string>
+
+</resources>
