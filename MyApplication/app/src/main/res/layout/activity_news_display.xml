@@ -10,8 +10,10 @@
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:orientation="vertical">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                      android:orientation="vertical" android:focusable="true"
+                      android:focusableInTouchMode="true">
             <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:id="@+id/display_title"
@@ -39,7 +41,63 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray" android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp" android:layout_marginTop="10dp" />
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" android:id="@+id/comment_layout"
+                    android:layout_marginLeft="15dp" android:layout_marginRight="15dp">
+                <TextView
+                        android:text="评论区"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/textView" android:gravity="center"
+                        android:textSize="18sp" android:layout_marginBottom="5dp"/>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:id="@+id/comment_list">
+                </LinearLayout>
+                <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:nextFocusLeft="@+id/display_title"
+                          android:nextFocusUp="@+id/display_title"
+                          android:hint="@string/comment_input_hint"
+                          android:background="@drawable/border"
+                          android:id="@+id/comment_input" android:minLines="4" android:nestedScrollingEnabled="true"
+                          android:maxLines="4" style="@style/Widget.AppCompat.EditText"
+                          android:gravity="top|left" android:layout_marginTop="20dp"/>
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    <Space
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_weight="10"/>
+                    <Button
+                            android:text="Clear"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/clear_button"
+                            android:layout_weight="1" android:textSize="12sp"
+                            android:paddingLeft="0dp" android:paddingRight="0dp"/>
+                    <Space
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_weight="1"/>
+                    <Button
+                            android:text="Submit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:id="@+id/submit_button"
+                            android:layout_weight="1" android:textSize="12sp" android:paddingLeft="0dp"
+                            android:paddingRight="0dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray" android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" android:layout_marginTop="10dp" android:id="@+id/view"/>
+
+
             <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
@@ -68,21 +126,15 @@
                         android:textSize="12sp"/>
                 <ImageButton
                         android:layout_width="30dp"
-                        android:layout_height="30dp" app:srcCompat="@drawable/wechat"
+                        android:layout_height="30dp" app:srcCompat="@drawable/text"
                         android:id="@+id/wechatShareButton" android:layout_weight="0"
                         android:background="@null" android:scaleType="fitXY" android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"/>
 
                 <ImageButton
                         android:layout_width="30dp"
-                        android:layout_height="30dp" app:srcCompat="@drawable/qq"
+                        android:layout_height="30dp" app:srcCompat="@drawable/image"
                         android:id="@+id/qqShareButton" android:layout_weight="0"
-                        android:background="@null" android:scaleType="fitXY" android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"/>
-                <ImageButton
-                        android:layout_width="30dp"
-                        android:layout_height="30dp" app:srcCompat="@drawable/weibo"
-                        android:id="@+id/weiboShareButton" android:layout_weight="0"
                         android:background="@null" android:scaleType="fitXY" android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"/>
                 <Space

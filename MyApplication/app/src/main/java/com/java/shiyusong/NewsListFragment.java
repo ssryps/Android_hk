@@ -105,7 +105,8 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
     public static final String TABLE_NEWS = "news";
     public static final String TABLE_BITMAP = "bitmap";
-
+    public static final String TABLE_RECORD = "record";
+    public static final String TABLE_COLLECTION = "collection";
     private SQLiteDatabase mSQLiteDatabase;
     private static final String NEWS_CREATE_TABLE_SQL = "create table " + TABLE_NEWS + " ("
             + "ID integer primary key autoincrement,"
@@ -124,6 +125,20 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
             + "ID integer primary key, "
             + "url text, "
             + "bitmap blob ) ";
+
+    private static final String RECORD_CREATE_TABLE_SQL = "create table " + TABLE_RECORD + " ( "
+            + "ID integer primary key, "
+            + "classification text, "
+            + "channel text, "
+            + "time text )";
+
+    private static final String COLLECTION_CREATE_TABLE_SQL = "create table " + TABLE_COLLECTION + " ( "
+            + "ID integer primary key, "
+            + "classification text, "
+            + "channel text, "
+            + "title text, "
+            + "link text )";
+
     public MySQLiteOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         mSQLiteDatabase = getWritableDatabase();
@@ -133,6 +148,8 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(BITMAP_CREATE_TABLE_SQL);
         db.execSQL(NEWS_CREATE_TABLE_SQL);
+        db.execSQL(RECORD_CREATE_TABLE_SQL);
+        db.execSQL(COLLECTION_CREATE_TABLE_SQL);
     }
 
     @Override
@@ -162,8 +179,17 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
     public ArrayList<News> getNewsByChannel(Classification classi, String time, String limit){
         ArrayList<News> newsArrayList = new ArrayList<>();
         ArrayList<Channel> channels = classi.getChannels();
+        String[] params = new String[channels.size() + 2];
+        params[0] = classi.getName();
+        params[channels.size() + 1] = time;
+        String queryString = "";
+        for(int i = 1; i <= channels.size(); i++ ){
+            params[i] = channels.get(i - 1).getName();
+            if(i != 1)queryString += " or ";
+            queryString += "channel=?";
+        }
         Cursor cursor = mSQLiteDatabase.query(TABLE_NEWS, null,
-                "classification=? and pubDate<?", new String[]{classi.getName(), time},
+                "classification=? and ( " + queryString +  "  )and pubDate<?", params,
                 null, null, "pubDate DESC", limit);
         while (cursor.moveToNext()) {
             newsArrayList.add(getNewsFromCursor(cursor));
@@ -179,35 +205,68 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
                 new String[]{news.classification, news.channel, news.title, news.link});
     }
 
-    public void setIsCollect(News news){
-        ContentValues values = new ContentValues();
-        values.put("isCollect", news.getIsCollect());
-        mSQLiteDatabase.update(TABLE_NEWS, values, "classification=? and channel=? and title=? and link=?",
-                new String[]{news.classification, news.channel, news.title, news.link});
-    }
-
-    public String getIsCollect(News news){
+    public String getIsRead(News news){
         Cursor cursor = mSQLiteDatabase.query(TABLE_NEWS, null,
                 "classification=? and channel=? and title=? and link=?",
                 new String[]{news.classification, news.channel, news.title, news.link},
                 null, null, null, null);
         while (cursor.moveToNext()) {
-            String isCollect = cursor.getString(cursor.getColumnIndex("isCollect"));
+            String isCollect = cursor.getString(cursor.getColumnIndex("isRead"));
             return isCollect;
+        }
+        return "false";
+    }
+    public void setIsCollect(News news){
+        if(news.getIsCollect() == "false") {
+            mSQLiteDatabase.delete(TABLE_COLLECTION, "classification=? and channel=? and title=? and link=?",
+                    new String[]{news.classification, news.channel, news.title, news.link});
+        } else {
+            ContentValues values = new ContentValues();
+            values.put("classification", news.classification);
+            values.put("channel", news.channel);
+            values.put("title", news.title);
+            values.put("link", news.link);
+            mSQLiteDatabase.insert(MySQLiteOpenHelper.TABLE_COLLECTION, null, values);
+        }
+    }
+
+    public String getIsCollect(News news){
+        Cursor cursor = mSQLiteDatabase.query(TABLE_COLLECTION, null,
+                "classification=? and channel=? and title=? and link=?",
+                new String[]{news.classification, news.channel, news.title, news.link},
+                null, null, null, null);
+        while (cursor.moveToNext()) {
+            return "true";
         }
         return "false";
     }
 
     public ArrayList<News> getAllCollected(){
         ArrayList<News> newsArrayList = new ArrayList<>();
-        Cursor cursor = mSQLiteDatabase.query(TABLE_NEWS, null,
-                "isCollect=?", new String[]{"true"},
+        Cursor cursor = mSQLiteDatabase.query(TABLE_COLLECTION, null, null, null,
                 null, null, null, null);
         while (cursor.moveToNext()) {
-            newsArrayList.add(getNewsFromCursor(cursor));
+            String classification = cursor.getString(cursor.getColumnIndex("classification"));
+            String channel = cursor.getString(cursor.getColumnIndex("channel"));
+            String title = cursor.getString(cursor.getColumnIndex("title"));
+            String link = cursor.getString(cursor.getColumnIndex("link"));
+            Cursor _cursor = mSQLiteDatabase.query(TABLE_NEWS, null,
+                    "classification=? and channel=? and title=? and link=?",
+                    new String[]{classification, channel, title, link},
+                    null, null, null, null);
+            while (_cursor.moveToNext()) {
+                News news = getNewsFromCursor(_cursor);
+                newsArrayList.add(news);
+            }
+            _cursor.close();
         }
         cursor.close();
         return newsArrayList;
+    }
+
+    public void removeAllCollection(){
+        mSQLiteDatabase.delete(TABLE_COLLECTION, null, null);
+
     }
 
     private News getNewsFromCursor(Cursor cursor){
@@ -274,15 +333,37 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
 
     public ArrayList<News> search(String keyword){
         ArrayList<News> newsArrayList = new ArrayList<>();
-        Cursor cursor = mSQLiteDatabase.query(TABLE_NEWS, null,
-                "title=%?% and description=%?%",
-                new String[]{keyword, keyword},
-                null, null, null, null);
+        String sql = "SELECT * FROM " + TABLE_NEWS + " WHERE title LIKE ? or description LIKE ?";
+        Cursor cursor = mSQLiteDatabase.rawQuery(sql, new String[]{"%" + keyword + "%", "%" + keyword + "%"});
         while (cursor.moveToNext()) {
             newsArrayList.add(getNewsFromCursor(cursor));
         }
         cursor.close();
         return newsArrayList;
+    }
+
+    public ArrayList<Record> getAllRecords(int limit){
+        ArrayList<Record> newsArrayList = new ArrayList<>();
+        Cursor cursor = mSQLiteDatabase.query(TABLE_RECORD  , null,
+                null, null,
+                null, null, "time DESC", ((limit < 0)? null: new Integer(limit).toString()));
+        while (cursor.moveToNext()) {
+            String classification = cursor.getString(cursor.getColumnIndex("classification"));
+            String channel = cursor.getString(cursor.getColumnIndex("channel"));
+            String time = cursor.getString(cursor.getColumnIndex("time"));
+            Record record = new Record(classification, channel, time);
+            newsArrayList.add(record);
+        }
+        cursor.close();
+        return newsArrayList;
+    }
+    public void insertRecord(News news){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("classification", news.classification);
+        contentValues.put("channel", news.channel);
+        contentValues.put("time", simpleDateFormat.format(new Date()));
+        mSQLiteDatabase.insert(MySQLiteOpenHelper.TABLE_RECORD, null, contentValues);
     }
 }
 
@@ -327,7 +408,7 @@ class MyPagerAdapter extends FragmentStatePagerAdapter{
 
 public class NewsListFragment extends Fragment {
     final String LOAD_LIMIT = "10";
-    Classification classification;
+    Classification classification = new Classification("");
     MySQLiteOpenHelper helper;
     LayoutInflater inflater;
     ViewGroup container;
@@ -335,7 +416,8 @@ public class NewsListFragment extends Fragment {
     Handler handler;
     Context mContext;
     MainActivity mainActivity;
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    boolean isScroll = false;
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private ArrayList<News> showNewsList = new ArrayList<>();
     public NewsListFragment(){ }
 
@@ -356,6 +438,12 @@ public class NewsListFragment extends Fragment {
             public void handleMessage(Message msg) {
                 if(msg.what == 1) {
                     updateView();
+                }
+                if(msg.what == 2){
+                    Toast.makeText(mContext, "没有更新的内容了", Toast.LENGTH_LONG).show();
+                }
+                if(msg.what == 3){
+                    Toast.makeText(mContext, "所有新闻都已加载", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -396,23 +484,15 @@ public class NewsListFragment extends Fragment {
 
     private void updateView(){
         ArrayList<News> newsArrayList = showNewsList;
-        for(News news : newsArrayList){
-            System.out.println(news.pubDate);
-        }
         Collections.sort(newsArrayList, new Comparator<News>(){
             public int compare(News o1, News o2) {
                 return o2.pubDate.compareTo(o1.pubDate);
-
             }
         });
-        System.out.println("after");
-        for(News news : newsArrayList){
-            System.out.println(news.pubDate);
-        }
         LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.news_list);
         linearLayout.removeAllViews();
         for(final News news: newsArrayList) {
-
+            news.isRead = helper.getIsRead(news);
             View newView = inflater.inflate(R.layout.news, container, false);
 
             final TextView title = (TextView) newView.findViewById(R.id.news_title);
@@ -467,6 +547,7 @@ public class NewsListFragment extends Fragment {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                int add_num = 0;
                 for (Channel channel : classification.getChannels()) {
                     try {
                         URL url = new URL(channel.getHref());
@@ -497,6 +578,7 @@ public class NewsListFragment extends Fragment {
                             if(!helper.isNewsIn(news)) {
                                 showNewsList.add(news);
                                 helper.insertNews(news);
+                                add_num ++;
                             }
                         }
                     } catch (Exception e) {
@@ -504,8 +586,13 @@ public class NewsListFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
-                Message message = handler.obtainMessage(1);
-                handler.sendMessage(message);
+                if(add_num != 0) {
+                    Message message = handler.obtainMessage(1);
+                    handler.sendMessage(message);
+                }else {
+                    Message message = handler.obtainMessage(2);
+                    handler.sendMessage(message);
+                }
             }
         });
         thread.start();
@@ -523,9 +610,13 @@ public class NewsListFragment extends Fragment {
         } else {
             time = showNewsList.get(showNewsList.size() - 1).pubDate;
         }
-
+        System.out.println(time);
         ArrayList<News> addOn = helper.getNewsByChannel(classification, time, LOAD_LIMIT);
-        for(News news : addOn) showNewsList.add(news);
-        updateView();
+        for(News news : addOn){ showNewsList.add(news); };
+        if(addOn.size() != 0)updateView();
+        else {
+            Message message = handler.obtainMessage(3);
+            handler.sendMessage(message);
+        }
     }
 }

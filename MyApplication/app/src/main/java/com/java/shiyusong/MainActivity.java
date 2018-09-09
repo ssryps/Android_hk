@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,9 +20,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobUser;
 
 import java.io.*;
+import java.lang.reflect.Method;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 
 
@@ -68,10 +76,14 @@ public class MainActivity extends AppCompatActivity
 
     ArrayList<Classification> classifications;
     MyPagerAdapter myPagerAdapter;
+    SearchView searchView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Bmob.initialize(this, "4503d9c9cbab1c6b86670233ec8fdfd2", "Bmob");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -92,6 +104,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        loadUserInfo();
         loadClassifications();
         TabLayout tabLayout = (TabLayout) findViewById(R.id.maintab);
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_page);
@@ -114,7 +128,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+           super.onBackPressed();
         }
     }
 
@@ -122,7 +136,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -131,11 +145,9 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.search_mag_icon) {
+        if (id == R.id.action_main_search) {
             Intent intent = new Intent(MainActivity.this, SearchList.class);
-            startActivity(intent);
+            startActivityForResult(intent, 5);
             return true;
         }
 
@@ -152,19 +164,30 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, SubscriptionActivity.class);
             ArrayList<Classification> arrayList = new ArrayList<>(this.classifications);
             intent.putExtra("classifications", arrayList);
-            startActivityForResult(intent, 0);
+            startActivityForResult(intent, 1);
         } else if (id == R.id.collection) {
             Intent intent = new Intent(MainActivity.this, CollectList.class);
-            startActivity(intent);
+            startActivityForResult(intent, 2);
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.recommend) {
+            Intent intent = new Intent(MainActivity.this, Recommend.class);
+            ArrayList<Classification> arrayList = new ArrayList<>(this.classifications);
+            intent.putExtra("classifications", arrayList);
+            startActivityForResult(intent, 3);
+        } else if (id == R.id.hot_list) {
+            Intent intent = new Intent(MainActivity.this, TodayList.class);
+            startActivityForResult(intent, 6);
+        } else if (id == R.id.sign_in_and_up) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(intent, 4);
+        } else if (id == R.id.signout) {
+            if (BmobUser.getCurrentUser() == null) {
+                Toast.makeText(getApplicationContext(), "You have not signed in", Toast.LENGTH_LONG).show();
+            } else {
+                BmobUser.logOut();
+                loadUserInfo();
+                Toast.makeText(getApplicationContext(), "sign out successfully", Toast.LENGTH_LONG).show();
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -174,10 +197,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == 0){
+        if(resultCode == 10){
             this.classifications = (ArrayList<Classification>)data.getSerializableExtra("classifications");
             saveClassificationsConfig();
             changeMainNewsList();
+        }
+
+        if(resultCode == 20 || resultCode == 30 || resultCode == 50){
+            System.out.println(resultCode);;
+            changeMainNewsList();
+        }
+
+        if(resultCode == 40 || resultCode == 41){
+            loadUserInfo();
         }
     }
 
@@ -250,86 +282,18 @@ public class MainActivity extends AppCompatActivity
         }
         editor.commit();
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
+    private void loadUserInfo(){
+        BmobUser user = BmobUser.getCurrentUser();
+        NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView username = (TextView) headerView.findViewById(R.id.username);
+        TextView email = (TextView) headerView.findViewById(R.id.user_email);
+        if(user != null) {
+            username.setText(user.getUsername());
+            email.setText(user.getEmail());
+        } else{
+            username.setText("未登录");
+            email.setText("");
+        }
     }
 }
-
-//
-//class MyPagerAdapter extends FragmentPagerAdapter {
-//
-//    private ArrayList<Classification> classifications;
-//    MyPagerAdapter(FragmentManager fm, ArrayList<Classification> classificationArrayList) {
-//        super(fm);
-//        classifications = classificationArrayList;
-//    }
-//
-//    @Override
-//    public Fragment getItem(int position) {
-//        Fragment fragment = new Fragment();
-//        return fragment;
-//    }
-//
-//    @Override
-//    public Object instantiateItem(ViewGroup container, int position) {
-//
-//        return super.instantiateItem(container, position);
-//    }
-//
-//    @Override
-//    public void destroyItem(ViewGroup container, int position, Object object) {
-//        super.destroyItem(container, position, object);
-//    }
-//
-//    @Override
-//    public int getCount() {
-//        return classifications.size();
-//    }
-//}
-////      code to get urls
-////    Thread thread = new Thread(new Runnable() {
-////        @Override
-////        public void run() {
-////            try {
-////
-////                URL url = new URL(getResources().getString(R.string.rss_site));
-////                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-////                conn.setConnectTimeout(1000);
-////                conn.setReadTimeout(2000);
-////                InputStreamReader inputStream = new InputStreamReader(conn.getInputStream(), "gbk");
-////                Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-////                String result = scanner.hasNext() ? scanner.next() : "";
-////                org.jsoup.nodes.Document document = Jsoup.parse(result);
-////                Elements nodes = document.getElementById("rss_nav").select("a[href]");
-////                for(Element element: nodes) {
-////                    String href = element.attr("href"), name = element.text();
-////                    if (href == "http://rss.qq.com/index.shtml") continue;
-////                    try {
-////                        URL _url = new URL(href);
-////                        HttpURLConnection _conn = (HttpURLConnection) _url.openConnection();
-////                        _conn.setConnectTimeout(1000);
-////                        _conn.setReadTimeout(2000);
-////                        InputStreamReader _inputStream = new InputStreamReader(_conn.getInputStream(), "gbk");
-////                        Scanner _scanner = new Scanner(_inputStream).useDelimiter("\\A");
-////                        String _result = _scanner.hasNext() ? _scanner.next() : "";
-////                        org.jsoup.nodes.Document _document = Jsoup.parse(_result);
-////                        Elements _nodes = _document.getElementsByTag("h4");
-////                        for (Element _element : _nodes) {
-////                            String input1 = name + "/" + _element.child(0).child(0).text();
-////                            String input2 = _element.child(1).child(0).attr("href");
-////                            System.out.println("<item>" + input1 + "</item>");
-////                        }
-////
-////                    } catch (Exception e) { }
-////                }
-////
-////            } catch (MalformedURLException e) {
-////                e.printStackTrace();
-////            } catch (IOException e){
-////                e.printStackTrace();
-////            }
-////        }
-////    });
-////        thread.start();

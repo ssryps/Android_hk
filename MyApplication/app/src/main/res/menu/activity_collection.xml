@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/collect_settings_local_to_server"
+          android:title="本地导出到云端"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+    <item android:id="@+id/collect_settings_server_to_local"
+          android:title="导入账号收藏"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+</menu>

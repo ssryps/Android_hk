@@ -6,4 +6,5 @@
     <color name="colorNewsDisplayArticle">#D0000000</color>
     <color name="colorNewsListRead">#80000000</color>
     <color name="colorNewsListUnread">#C0000000</color>
+    <color name="colorBorder">#80000000</color>
 </resources>

@@ -26,7 +26,6 @@
         <item>娱乐频道/音乐</item>
         <item>娱乐频道/图片站</item>
         <item>娱乐频道/名人坊</item>
-        <item>财经频道/滚动新闻</item>
         <item>财经频道/国内财经</item>
         <item>财经频道/国际财经</item>
         <item>财经频道/金融市场</item>
@@ -308,8 +307,7 @@
         <item>http://ent.qq.com/m_news/rss_yinyue.xml</item>
         <item>http://ent.qq.com/entpic/rss_entpic.xml</item>
         <item>http://ent.qq.com/chatroom/chatnews/rss_starchat.xml</item>
-        <item>http://finance.qq.com/financenews/breaknews/rss_finance.xml</item>
-        <item>http://finance.qq.com/financenews/domestic/rss_domestic.xml</item>
+        <item>http://finance.qq.com/finafncenews/domestic/rss_domestic.xml</item>
         <item>http://finance.qq.com/financenews/international/rss_international.xml</item>
         <item>http://finance.qq.com/financenews/jinrongshichang/rss_jinrongshichang.xml</item>
         <item>http://finance.qq.com/money/rss_money.xml</item>
@@ -418,7 +416,7 @@
         <item>http://games.qq.com/mini/rss_mini.xml</item>
         <item>http://games.qq.com/mobile/rss_mobile.xml</item>
         <item>http://games.qq.com/radio/rss_radio.xml</item>
-        <item>ttp://games.qq.com/sports/rss_sports.xml</item>
+        <item>http://games.qq.com/sports/rss_sports.xml</item>
         <item>http://games.qq.com/pic/rss_pic.xml</item>
         <item>http://games.qq.com/tencent/rss_tencent.xml</item>
         <item>http://games.qq.com/pcgame/rss_pcgame.xml</item>

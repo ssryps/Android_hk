@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">shiyusong_News</string>
+    <string name="app_name">Shiyusong_News</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -11,5 +11,27 @@
     <!-- strings about the rss site-->
     <string name="rss_site">http://rss.qq.com/index.shtml</string>
     <string name="title_activity_search_list">SearchList</string>
+    <string name="title_activity_login">Sign in</string>
 
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_up">Sign up</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_convert_to_sign_up">Convert to sign up</string>
+    <string name="action_convert_to_sign_in">Convert to sign in</string>
+    <string name="error_sign_up"></string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+
+
+    <string name="comment_input_hint">Comment here</string>
+    <string name="comment_without_signin">Please sign in before comment</string>
+    <string name="comment_success">Comment successfully</string>
+    <string name="please_sign_in">Please sign in first</string>
 </resources>

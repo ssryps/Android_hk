@@ -33,21 +33,20 @@ public class SubscriptionActivity extends ActivityGroup {
             tv.setTextColor(Color.rgb(255, 255, 255));
         }
 
-        setResult(0, intent);
+        setResult(10, intent);
     }
 
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.putExtra("classifications", classifications);
-        setResult(0, intent);
+        setResult(10, intent);
         finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        System.out.println("activity DOnw *********************************************************************");
     }
 
 }
