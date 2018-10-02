@@ -529,7 +529,6 @@ public class NewsDisplay extends AppCompatActivity {
             @Override
             public void done(List<NewsComment> object, BmobException e) {
                 if(e==null){
-                    System.out.println("size" + object.size());
                     for (NewsComment newsComment : object) {
                         View tempView = getLayoutInflater().inflate(R.layout.comment_display, linearLayout, false);
 
@@ -545,7 +544,7 @@ public class NewsDisplay extends AppCompatActivity {
                         linearLayout.addView(tempView);
                     }
                 }else{
-                    if(e.getErrorCode() != 101)Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
+                    if(e.getErrorCode() != 101) System.out.println(e.getMessage());
                 }
             }
         });
@@ -595,7 +594,6 @@ public class NewsDisplay extends AppCompatActivity {
                             }
                         });
                     }
-                    else Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         });

@@ -39,7 +39,7 @@ public class SearchList extends AppCompatActivity {
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.search_toolbar);
  //       setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("搜索");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.helper = new MySQLiteOpenHelper(this);
         mContext = this;
     }
@@ -111,7 +111,7 @@ public class SearchList extends AppCompatActivity {
                     linearLayout1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            helper.setIsRead(_news);
+                            helper.setIsRead(_news, "true");
                             title.setTextColor(getResources().getColor(R.color.colorNewsListRead));
                             Intent intent = new Intent(mContext, NewsDisplay.class);
                             intent.putExtra("news", _news);

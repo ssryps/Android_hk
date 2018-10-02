@@ -21,6 +21,7 @@ import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -97,7 +98,7 @@ public class CollectList extends AppCompatActivity {
             linearLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    helper.setIsRead(news);
+                    helper.setIsRead(news, "true");
                     title.setTextColor(getResources().getColor(R.color.colorNewsListRead));
                     Intent intent = new Intent(mContext, NewsDisplay.class);
                     intent.putExtra("news", news);
@@ -143,7 +144,7 @@ public class CollectList extends AppCompatActivity {
                                 }
                             });
                         }else{
-                            if(e.getErrorCode() == 101){
+                            if(e == null || e.getErrorCode() == 101){
                                 NewsCollection newCollection = new NewsCollection();
                                 newCollection.setNewsCollection(helper.getAllCollected());
                                 newCollection.setUser(BmobUser.getCurrentUser());
@@ -164,32 +165,43 @@ public class CollectList extends AppCompatActivity {
                 });
             }
         } else if(id == R.id.collect_settings_server_to_local){
-            BmobQuery<NewsCollection> query = new BmobQuery<>();
-            query.addWhereEqualTo("user", BmobUser.getCurrentUser());
-            query.findObjects(new FindListener<NewsCollection>() {
-                @Override
-                public void done(List<NewsCollection> object, BmobException e) {
-                    if(e==null && object.size() > 0){
-                        NewsCollection newsCollection = object.get(0);
-                        Toast.makeText(mContext, "导入成功", Toast.LENGTH_LONG).show();
-                        helper.removeAllCollection();
-                        for(News news: newsCollection.getNewsCollection()) {
-                            news.setIsCollect("true");
-                            if(helper.isNewsIn(news)){
-                                helper.setIsCollect(news);
-                            }else{
-                                helper.insertNews(news);
-                                helper.setIsCollect(news);
+            BmobUser user = BmobUser.getCurrentUser();
+            if(user == null) {
+                Toast.makeText(mContext, getResources().getText(R.string.please_sign_in), Toast.LENGTH_LONG).show();
+                return true;
+            } else {
+                BmobQuery<NewsCollection> query = new BmobQuery<>();
+                query.addWhereEqualTo("user", BmobUser.getCurrentUser());
+                query.findObjects(new FindListener<NewsCollection>() {
+                    @Override
+                    public void done(List<NewsCollection> object, BmobException e) {
+                        if (e == null && object.size() > 0) {
+                            NewsCollection newsCollection = object.get(0);
+                            Toast.makeText(mContext, "导入成功", Toast.LENGTH_LONG).show();
+                            helper.removeAllCollection();
+                            System.out.println(newsCollection.getNewsCollection().size());
+                            for (News news : newsCollection.getNewsCollection()) {
+                                news.setIsCollect("true");
+                                if (helper.isNewsIn(news)) {
+                                    helper.setIsCollect(news);
+                                } else {
+                                    helper.insertNews(news);
+                                    news.isRead = "false";
+                                    System.out.println("zhezhenshi");
+                                    helper.setIsRead(news, "false");
+                                    helper.setIsCollect(news);
+                                }
+                                System.out.println(helper.getIsRead(news) + " " + helper.isNewsIn(news));
                             }
+                            UpdateUi();
+                        } else {
+                            if (e == null || e.getErrorCode() == 101)
+                                Toast.makeText(mContext, "You have not backup in the server", Toast.LENGTH_LONG).show();
+                            else Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
-                        UpdateUi();
-                    }else{
-                        if(e.getErrorCode() == 101) Toast.makeText(mContext, "You have not backup in the server", Toast.LENGTH_LONG).show();
-                        else Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                }
-            });
-
+                });
+            }
             return true;
         }
 

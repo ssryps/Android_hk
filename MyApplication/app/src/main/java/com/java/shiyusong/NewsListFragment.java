@@ -198,9 +198,9 @@ class MySQLiteOpenHelper  extends SQLiteOpenHelper {
         return newsArrayList;
     }
 
-    public void setIsRead(News news){
+    public void setIsRead(News news, String isRead){
         ContentValues values = new ContentValues();
-        values.put("isRead", "true");
+        values.put("isRead", isRead);
         mSQLiteDatabase.update(TABLE_NEWS, values, "classification=? and channel=? and title=? and link=?",
                 new String[]{news.classification, news.channel, news.title, news.link});
     }
@@ -531,7 +531,7 @@ public class NewsListFragment extends Fragment {
             linearLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    helper.setIsRead(news);
+                    helper.setIsRead(news, "true");
                     title.setTextColor(getResources().getColor(R.color.colorNewsListRead));
                     Intent intent = new Intent(getContext(), NewsDisplay.class);
                     intent.putExtra("news", news);
@@ -552,8 +552,8 @@ public class NewsListFragment extends Fragment {
                     try {
                         URL url = new URL(channel.getHref());
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setConnectTimeout(2000);
-                        conn.setReadTimeout(2000);
+                        conn.setConnectTimeout(3000);
+                        conn.setReadTimeout(3000);
                         InputStreamReader inputStream = new InputStreamReader(conn.getInputStream());
                         Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
                         String result = scanner.hasNext() ? scanner.next() : "";
@@ -570,7 +570,8 @@ public class NewsListFragment extends Fragment {
 
                         for (Element node : nodes) {
                             String title = node.getElementsByTag("title").text();
-                            String link = node.toString().split("<link>")[1].split("\n")[0];
+                            String link = node.toString().split("</?link>")[1].split("\n")[0];
+                            System.out.println(link);
                             String author = node.getElementsByTag("author").text();
                             String description = node.getElementsByTag("description").text();
                             String pubDate = node.getElementsByTag("pubDate").text();

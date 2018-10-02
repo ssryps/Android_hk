@@ -227,7 +227,7 @@ public class Recommend extends AppCompatActivity {
             linearLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    helper.setIsRead(news);
+                    helper.setIsRead(news, "true");
                     title.setTextColor(getResources().getColor(R.color.colorNewsListRead));
                     Intent intent = new Intent(mContext, NewsDisplay.class);
                     intent.putExtra("news", news);

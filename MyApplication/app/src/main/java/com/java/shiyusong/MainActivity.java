@@ -204,7 +204,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         if(resultCode == 20 || resultCode == 30 || resultCode == 50){
-            System.out.println(resultCode);;
             changeMainNewsList();
         }
 
